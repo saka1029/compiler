@@ -89,42 +89,42 @@ public class TestProcessor {
     public void testRecursion() {
         int argSize = 1;
         List<Instruction> codes = List.of(
-            Instruction.loadConst(0),
-            Instruction.call(22),
+            Instruction.loadConst(0),                   // 0
+            Instruction.call(22),                       // fact
             p -> assertEquals(1, p.pop()),
-            Instruction.loadConst(1),
-            Instruction.call(22),
+            Instruction.loadConst(1),                   // 1
+            Instruction.call(22),                       // fact
             p -> assertEquals(1, p.pop()),
-            Instruction.loadConst(2),
-            Instruction.call(22),
+            Instruction.loadConst(2),                   // 2
+            Instruction.call(22),                       // fact
             p -> assertEquals(2, p.pop()),
-            Instruction.loadConst(3),
-            Instruction.call(22),
+            Instruction.loadConst(3),                   // 3
+            Instruction.call(22),                       // fact
             p -> assertEquals(6, p.pop()),
-            Instruction.loadConst(4),
-            Instruction.call(22),
+            Instruction.loadConst(4),                   // 4
+            Instruction.call(22),                       // fact
             p -> assertEquals(24, p.pop()),
-            Instruction.loadConst(5),
-            Instruction.call(22),
+            Instruction.loadConst(5),                   // 5
+            Instruction.call(22),                       // fact
             p -> assertEquals(120, p.pop()),
-            Instruction.loadConst(6),
-            Instruction.call(22),
+            Instruction.loadConst(6),                   // 6
+            Instruction.call(22),                       // fact
             p -> assertEquals(720, p.pop()),
             Instruction.HALT,
-    /*22*/  Instruction.loadLocal(-argSize - 3 + 0),
-            Instruction.loadConst(0),
-            Instruction.LE,
-            Instruction.branchFalse(28),
-            Instruction.loadConst(1),
-            Instruction.branch(34),
-    /*28*/  Instruction.loadLocal(-argSize - 3 + 0),
-            Instruction.loadConst(1),
-            Instruction.SUBTRACT,
-            Instruction.call(22),
-            Instruction.loadLocal(-argSize - 3 + 0),
-            Instruction.MULTIPLY,
-    /*34*/  Instruction.STORE_RETURN,
-            Instruction.retFunc(argSize)
+    /*22*/  Instruction.loadLocal(-argSize - 3 + 0),    // fact: n
+            Instruction.loadConst(0),                   //       0
+            Instruction.LE,                             //       <
+            Instruction.branchFalse(28),                //       BF 28
+            Instruction.loadConst(1),                   //       1
+            Instruction.branch(34),                     //       B 34
+    /*28*/  Instruction.loadLocal(-argSize - 3 + 0),    // 28:   n
+            Instruction.loadConst(1),                   //       1
+            Instruction.SUBTRACT,                       //       -
+            Instruction.call(22),                       //       fact
+            Instruction.loadLocal(-argSize - 3 + 0),    //       n
+            Instruction.MULTIPLY,                       //       *
+    /*34*/  Instruction.STORE_RETURN,                   // 34:
+            Instruction.retFunc(argSize)                //
         );
         Processor processor = Processor.of(codes);
         processor.run();
