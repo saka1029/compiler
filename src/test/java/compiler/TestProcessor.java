@@ -47,8 +47,8 @@ public class TestProcessor {
             Instruction.ADD,
             Instruction.loadLocal(1),
             Instruction.ADD,
-            Instruction.storeLocal(-1),              // 戻り値
-            Instruction.ret(argSize)
+            Instruction.storeLocal(-1),              // 戻り値をセット
+            Instruction.retFunc(argSize)
         );
         Processor processor = Processor.of(codes);
         processor.run();

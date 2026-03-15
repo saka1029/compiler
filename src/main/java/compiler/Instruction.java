@@ -19,7 +19,7 @@ public interface Instruction {
             p.bp = p.sp;
         };
     }
-    public static Instruction ret(int argSize) {
+    public static Instruction retFunc(int argSize) {
         return p -> {
             p.sp = p.bp;
             int rv = p.pop();
@@ -27,6 +27,15 @@ public interface Instruction {
             p.pc = p.pop();
             p.sp -= argSize;
             p.push(rv);
+        };
+    }
+    public static Instruction retProc(int argSize) {
+        return p -> {
+            p.sp = p.bp;
+            int rv = p.pop();
+            p.bp = p.pop();
+            p.pc = p.pop();
+            p.sp -= argSize;
         };
     }
     public static Instruction ADD = p -> p.push(p.pop() + p.pop());
