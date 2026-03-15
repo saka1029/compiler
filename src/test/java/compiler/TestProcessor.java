@@ -123,8 +123,8 @@ public class TestProcessor {
             Instruction.call(22),                       //       fact
             Instruction.loadLocal(-argSize - 3 + 0),    //       n
             Instruction.MULTIPLY,                       //       *
-    /*34*/  Instruction.STORE_RETURN,                   // 34:
-            Instruction.retFunc(argSize)                //
+    /*34*/  Instruction.STORE_RETURN,                   // 34:   STORE_RETURN
+            Instruction.retFunc(argSize)                //       RET_FUNC
         );
         Processor processor = Processor.of(codes);
         processor.run();
