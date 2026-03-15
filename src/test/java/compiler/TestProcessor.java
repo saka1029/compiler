@@ -112,16 +112,18 @@ public class TestProcessor {
             p -> assertEquals(720, p.pop()),
             Instruction.HALT,
     /*22*/  Instruction.loadLocal(-argSize - 3 + 0),
-            p -> { if (p.pop() > 0) p.pc = 26; },
+            Instruction.loadConst(0),
+            Instruction.LE,
+            Instruction.branchFalse(28),
             Instruction.loadConst(1),
-            Instruction.branch(32),
-    /*26*/  Instruction.loadLocal(-argSize - 3 + 0),
+            Instruction.branch(34),
+    /*28*/  Instruction.loadLocal(-argSize - 3 + 0),
             Instruction.loadConst(1),
             Instruction.SUBTRACT,
             Instruction.call(22),
             Instruction.loadLocal(-argSize - 3 + 0),
             Instruction.MULTIPLY,
-    /*32*/  Instruction.STORE_RETURN,
+    /*34*/  Instruction.STORE_RETURN,
             Instruction.retFunc(argSize)
         );
         Processor processor = Processor.of(codes);

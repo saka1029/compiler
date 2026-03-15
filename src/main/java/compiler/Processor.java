@@ -8,7 +8,7 @@ public class Processor {
 
     public int pc = 0, sp = 0, bp = 0;
     public boolean halt = false;
-    public int[] stack = new int[100];
+    public int[] stack = new int[200];
     public final List<Instruction> codes;
 
     Processor(List<Instruction> codes) {
