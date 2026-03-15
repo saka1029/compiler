@@ -12,7 +12,12 @@ public interface Instruction {
     public static Instruction SUBTRACT = p -> p.push(-p.pop() + p.pop());
     public static Instruction MULTIPLY = p -> p.push(p.pop() * p.pop());
     public static Instruction DIVIDE = p -> { int r = p.pop(); p.push(p.pop() / r); };
+    public static Instruction EQ = p -> p.push(p.pop() == p.pop() ? 1 : 0);
+    public static Instruction NE = p -> p.push(p.pop() != p.pop() ? 1 : 0);
+    public static Instruction LT = p -> p.push(p.pop() > p.pop() ? 1 : 0);
     public static Instruction LE = p -> p.push(p.pop() >= p.pop() ? 1 : 0);
+    public static Instruction GT = p -> p.push(p.pop() < p.pop() ? 1 : 0);
+    public static Instruction GE = p -> p.push(p.pop() <= p.pop() ? 1 : 0);
     public static Instruction loadConst(int constant) { return p -> p.push(constant); }
     public static Instruction loadGlobal(int address) { return p -> p.push(p.stack[address]); }
     public static Instruction storeGlobal(int address) { return p -> p.stack[address] = p.pop(); }
