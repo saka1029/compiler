@@ -3,9 +3,10 @@ package compiler;
 import java.util.function.Consumer;
 
 public interface Instruction {
+
     void execute(Processor processor);
 
-    public static Instruction HALT = p -> p.nop();
+    public static Instruction HALT = p -> p.halt = true;
     public static Instruction DUMP = p -> System.out.println(p);
     public static Instruction STORE_RETURN = p -> p.stack[p.bp - 1] = p.pop();
     public static Instruction ADD = p -> p.push(p.pop() + p.pop());

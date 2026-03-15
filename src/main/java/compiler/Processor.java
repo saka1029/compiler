@@ -7,6 +7,7 @@ import java.util.stream.IntStream;
 public class Processor {
 
     public int pc = 0, sp = 0, bp = 0;
+    public boolean halt = false;
     public int[] stack = new int[100];
     public final List<Instruction> codes;
 
@@ -30,12 +31,9 @@ public class Processor {
     }
 
     public void run() {
-        while (true) {
-            Instruction inst = codes.get(pc++);
-            if (inst == Instruction.HALT)
-                break;
-            inst.execute(this);
-        }
+        halt = false;
+        while (!halt)
+            codes.get(pc++).execute(this);
     }
 
     @Override
