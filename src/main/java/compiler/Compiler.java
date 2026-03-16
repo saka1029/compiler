@@ -176,7 +176,8 @@ public class Compiler {
         } else if (eat(Token.INT)) {
             int value = Integer.parseInt(eatenString);
             codes.add(Instruction.loadConst(value));
-        }
+        } else
+            throw error("Unknown token '%s'", token);
     }
 
     void term() {
