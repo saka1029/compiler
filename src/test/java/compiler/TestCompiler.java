@@ -5,7 +5,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.IntStream;
 
 import org.junit.Test;
 
@@ -75,8 +74,7 @@ public class TestCompiler {
             Instruction.DISPLAY,
             Instruction.HALT
         );
-        assertTrue(Instruction.compare(expected, processor.codes));
-        assertEquals(expected.size(), processor.codes.size());
+        assertTrue(Instruction.equals(expected, processor.codes));
         processor.run();
     }
 }
