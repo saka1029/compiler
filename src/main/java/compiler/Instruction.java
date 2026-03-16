@@ -8,16 +8,16 @@ public interface Instruction {
     public static final Instruction DUMP = p -> System.out.println(p);
     public static final Instruction LOAD_RETURN = p -> p.push(p.stack[p.bp - 1]);
     public static final Instruction STORE_RETURN = p -> p.stack[p.bp - 1] = p.pop();
-    public static final Instruction ADD = p -> p.push(p.pop() + p.pop());
-    public static final Instruction SUBTRACT = p -> p.push(-p.pop() + p.pop());
-    public static final Instruction MULTIPLY = p -> p.push(p.pop() * p.pop());
-    public static final Instruction DIVIDE = p -> { int r = p.pop(); p.push(p.pop() / r); };
-    public static final Instruction EQ = p -> p.push(p.pop() == p.pop() ? 1 : 0);
-    public static final Instruction NE = p -> p.push(p.pop() != p.pop() ? 1 : 0);
-    public static final Instruction LT = p -> p.push(p.pop() > p.pop() ? 1 : 0);
-    public static final Instruction LE = p -> p.push(p.pop() >= p.pop() ? 1 : 0);
-    public static final Instruction GT = p -> p.push(p.pop() < p.pop() ? 1 : 0);
-    public static final Instruction GE = p -> p.push(p.pop() <= p.pop() ? 1 : 0);
+    public static final Instruction ADD =  p -> p.stack[p.sp - 2] += p.stack[--p.sp];
+    public static final Instruction SUBTRACT = p -> p.stack[p.sp - 2] -= p.stack[--p.sp];
+    public static final Instruction MULTIPLY =  p -> p.stack[p.sp - 2] *= p.stack[--p.sp];
+    public static final Instruction DIVIDE = p -> p.stack[p.sp - 2] /= p.stack[--p.sp];
+    public static final Instruction EQ = p -> p.push(p.stack[--p.sp] == p.stack[--p.sp] ? 1:0);
+    public static final Instruction NE = p -> p.push(p.stack[--p.sp] != p.stack[--p.sp] ? 1:0);
+    public static final Instruction LT = p -> p.push(p.stack[--p.sp] > p.stack[--p.sp] ? 1:0);
+    public static final Instruction LE = p -> p.push(p.stack[--p.sp] >= p.stack[--p.sp] ? 1:0);
+    public static final Instruction GT = p -> p.push(p.stack[--p.sp] < p.stack[--p.sp] ? 1:0);
+    public static final Instruction GE = p -> p.push(p.stack[--p.sp] <= p.stack[--p.sp] ? 1:0);
     public static Instruction loadConst(int constant) { return p -> p.push(constant); }
     public static Instruction loadGlobal(int address) { return p -> p.push(p.stack[address]); }
     public static Instruction storeGlobal(int address) { return p -> p.stack[address] = p.pop(); }
