@@ -1,6 +1,7 @@
 package compiler;
 
 import java.util.List;
+import java.util.function.IntBinaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
