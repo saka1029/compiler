@@ -108,4 +108,37 @@ public class TestCompiler {
         processor.run();
         assertEquals(100, processor.stack[1]);
     }
+        
+    @Test
+    public void testWhileStatement() {
+        String input = """
+            program
+            var y = 3, s = 0;
+            while y > 0 do s = s + y; y = y - 1; end
+            end
+        """;
+        Processor processor = Compiler.parse(input);
+        List<Instruction> expected = List.of(
+            Instruction.loadConst(3),
+            Instruction.loadConst(0),
+            Instruction.branch(3),
+            Instruction.loadGlobal(0),
+            Instruction.loadConst(0),
+            Instruction.GT,
+            Instruction.branchFalse(16),
+            Instruction.loadGlobal(1),
+            Instruction.loadGlobal(0),
+            Instruction.ADD,
+            Instruction.storeGlobal(1),
+            Instruction.loadGlobal(0),
+            Instruction.loadConst(1),
+            Instruction.SUBTRACT,
+            Instruction.storeGlobal(0),
+            Instruction.branch(3),
+            Instruction.HALT
+        );
+        assertTrue(Instruction.equals(expected, processor.codes));
+        processor.run();
+        assertEquals(6, processor.stack[1]);
+    }
 }
