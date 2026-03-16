@@ -190,7 +190,7 @@ public class Compiler {
             throw error("Unknown token '%s'", token);
     }
 
-    void term() {
+    void multExpression() {
         factor();
         while (true)
             if (eat(Token.MULTIPLY)) {
@@ -203,24 +203,47 @@ public class Compiler {
                 break;
     }
 
-    void expression() {
+    void addExpression() {
         int sign = 1;
         if (eat(Token.ADD))
             sign = 1;
         else if(eat(Token.SUBTRACT))
             sign = -1;
-        term();
+        multExpression();
         if (sign < 0)
             codes.add(Instruction.NEGATIVE);
         while (true)
             if (eat(Token.ADD)) {
-                term();
+                multExpression();
                 codes.add(Instruction.ADD);
             } else if (eat(Token.SUBTRACT)) {
-                term();
+                multExpression();
                 codes.add(Instruction.SUBTRACT);
             } else
                 break;
+    }
+
+    void expression() {
+        addExpression();
+        if (eat(Token.EQ)) {
+            addExpression();
+            codes.add(Instruction.EQ);
+        } else if (eat(Token.NE)) {
+            addExpression();
+            codes.add(Instruction.NE);
+        } else if (eat(Token.LT)) {
+            addExpression();
+            codes.add(Instruction.LT);
+        } else if (eat(Token.LE)) {
+            addExpression();
+            codes.add(Instruction.LE);
+        } else if (eat(Token.GT)) {
+            addExpression();
+            codes.add(Instruction.GT);
+        } else if (eat(Token.GE)) {
+            addExpression();
+            codes.add(Instruction.GE);
+        }
     }
 
     void assignStatement() {
@@ -233,6 +256,7 @@ public class Compiler {
             codes.add(Instruction.storeGlobal(globals.get(name)));
         else
             throw error("Variable '%s' is not defined", name);
+        must(Token.SEMI_COLON);
     }
 
     void ifStatement() {
@@ -267,6 +291,7 @@ public class Compiler {
     void displayStatement() {
         expression();
         codes.add(Instruction.DISPLAY);
+        must(Token.SEMI_COLON);
     }
 
     void statements() {

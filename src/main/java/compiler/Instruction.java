@@ -20,39 +20,97 @@ public interface Instruction {
     public static final Instruction LE = p -> p.push(p.stack[--p.sp] >= p.stack[--p.sp] ? 1:0);
     public static final Instruction GT = p -> p.push(p.stack[--p.sp] < p.stack[--p.sp] ? 1:0);
     public static final Instruction GE = p -> p.push(p.stack[--p.sp] <= p.stack[--p.sp] ? 1:0);
-    public static Instruction loadConst(int constant) { return p -> p.push(constant); }
-    public static Instruction loadGlobal(int address) { return p -> p.push(p.stack[address]); }
-    public static Instruction storeGlobal(int address) { return p -> p.stack[address] = p.pop(); }
-    public static Instruction loadLocal(int offset) { return p -> p.push(p.stack[p.bp + offset]); }
-    public static Instruction storeLocal(int offset) { return p -> p.stack[p.bp + offset] = p.pop(); }
-    public static Instruction branch(int address) { return p -> p.pc = address; }
-    public static Instruction branchFalse(int address) { return p -> { if (p.pop() == 0) p.pc = address; };}
-    public static Instruction call(int address) {
-        return p -> {
+    public static abstract class InstAbs implements Instruction {
+        public final int n;
+        public InstAbs(int n) { this.n = n; }
+        @Override
+        public boolean equals(Object obj) {
+            return obj != null
+                && obj.getClass() == getClass()
+                && obj instanceof InstAbs ia
+                && ia.n == n;
+        }
+        @Override
+        public String toString() {
+            return getClass().getSimpleName() + " " + n;
+        }
+    }
+    static class LoadConst extends InstAbs {
+        LoadConst(int n) { super(n); }
+        @Override public void execute(Processor p) { p.push(n); }
+    }
+    public static Instruction loadConst(int constant) { return new LoadConst(constant); }
+
+    static class LoadGlobal extends InstAbs {
+        LoadGlobal(int n) { super(n); }
+        @Override public void execute(Processor p) { p.push(p.stack[n + 1]); }
+    }
+    public static Instruction loadGlobal(int address) { return new LoadGlobal(address); }
+
+    static class StoreGlobal extends InstAbs {
+        StoreGlobal(int n) { super(n); }
+        @Override public void execute(Processor p) { p.stack[n + 1] = p.pop(); }
+    }
+    public static Instruction storeGlobal(int address) { return new StoreGlobal(address); }
+
+    static class LoadLocal extends InstAbs {
+        LoadLocal(int n) { super(n); }
+        @Override public void execute(Processor p) { p.push(p.stack[p.bp + n]); }
+    }
+    public static Instruction loadLocal(int offset) { return new LoadLocal(offset); }
+
+    static class StoreLocal extends InstAbs {
+        StoreLocal(int n) { super(n); }
+        @Override public void execute(Processor p) { p.stack[p.bp + n] = p.pop(); }
+    }
+    public static Instruction storeLocal(int offset) { return new StoreLocal(offset); }
+
+    static class Branch extends InstAbs {
+        Branch(int n) { super(n); }
+        @Override public void execute(Processor p) { p.pc = n; }
+    }
+    public static Instruction branch(int address) { return new Branch(address); }
+
+    static class BranchFalse extends InstAbs {
+        BranchFalse(int n) { super(n); }
+        @Override public void execute(Processor p) { if (p.pop() == 0) p.pc = n; }
+    }
+    public static Instruction branchFalse(int address) { return new BranchFalse(address); }
+
+    static class Call extends InstAbs {
+        Call(int n) { super(n); }
+        @Override public void execute(Processor p) {
             p.push(p.pc);
             p.push(p.bp);
             p.push(0);
-            p.pc = address;
+            p.pc = n;
             p.bp = p.sp;
-        };
+        }
     }
-    public static Instruction retFunc(int argSize) {
-        return p -> {
+    public static Instruction call(int address) { return new Call(address); }
+
+    static class RetFunc extends InstAbs {
+        RetFunc(int n) { super(n); }
+        @Override public void execute(Processor p) {
             p.sp = p.bp;
             int rv = p.pop();
             p.bp = p.pop();
             p.pc = p.pop();
-            p.sp -= argSize;
+            p.sp -= n;
             p.push(rv);
-        };
+        }
     }
-    public static Instruction retProc(int argSize) {
-        return p -> {
+    public static Instruction retFunc(int argSize) { return new RetFunc(argSize); }
+
+    static class RetProc extends InstAbs {
+        RetProc(int n) { super(n); }
+        @Override public void execute(Processor p) {
             p.sp = p.bp;
             p.pop();        // drop 戻り値
             p.bp = p.pop();
             p.pc = p.pop();
-            p.sp -= argSize;
-        };
+            p.sp -= n;
+        }
     }
+    public static Instruction retProc(int argSize) { return new RetProc(argSize); }
 }
