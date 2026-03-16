@@ -46,13 +46,14 @@ public interface Instruction {
 
     static class LoadGlobal extends InstAbs {
         LoadGlobal(int n) { super(n); }
-        @Override public void execute(Processor p) { p.push(p.stack[n + 1]); }
+        @Override public void execute(Processor p) { p.push(p.stack[n]); }
     }
     public static Instruction loadGlobal(int address) { return new LoadGlobal(address); }
 
     static class StoreGlobal extends InstAbs {
         StoreGlobal(int n) { super(n); }
-        @Override public void execute(Processor p) { p.stack[n + 1] = p.pop(); }
+        @Override public void execute(Processor p) {
+            p.stack[n] = p.pop(); }
     }
     public static Instruction storeGlobal(int address) { return new StoreGlobal(address); }
 

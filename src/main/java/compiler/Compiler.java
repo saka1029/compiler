@@ -383,12 +383,12 @@ public class Compiler {
     }
 
     void program() {
-        // グローバル変数と関数定義をBRANCHでスキップする。
-        int start = codes.size();
-        codes.add(Instruction.branch(Integer.MIN_VALUE));
         must(Token.PROGRAM);
         if (eat(Token.VAR))
             vars();
+        // 関数定義をBRANCHでスキップする。
+        int start = codes.size();
+        codes.add(Instruction.branch(Integer.MIN_VALUE));
         while (eat(Token.FUNC))
             func();
         // コード本体の開始

@@ -50,6 +50,7 @@ public class TestCompiler {
         Processor processor = Compiler.parse(input);
         processor.run();
     }
+        
     @Test
     public void testIfStatement() {
         String input = """
@@ -61,8 +62,8 @@ public class TestCompiler {
         """;
         Processor processor = Compiler.parse(input);
         List<Instruction> expected = List.of(
-            Instruction.branch(2),
             Instruction.loadConst(1),
+            Instruction.branch(2),
             Instruction.loadGlobal(0),
             Instruction.branchFalse(7),
             Instruction.loadConst(101),
@@ -76,5 +77,35 @@ public class TestCompiler {
         );
         assertTrue(Instruction.equals(expected, processor.codes));
         processor.run();
+        assertEquals(101, processor.stack[1]);
+    }
+        
+    @Test
+    public void testIfStatement2() {
+        String input = """
+            program
+            var y = 0;
+            if y then y = 101; else y = 100; end
+            display y;
+            end
+        """;
+        Processor processor = Compiler.parse(input);
+        List<Instruction> expected = List.of(
+            Instruction.loadConst(0),
+            Instruction.branch(2),
+            Instruction.loadGlobal(0),
+            Instruction.branchFalse(7),
+            Instruction.loadConst(101),
+            Instruction.storeGlobal(0),
+            Instruction.branch(9),
+            Instruction.loadConst(100),
+            Instruction.storeGlobal(0),
+            Instruction.loadGlobal(0),
+            Instruction.DISPLAY,
+            Instruction.HALT
+        );
+        assertTrue(Instruction.equals(expected, processor.codes));
+        processor.run();
+        assertEquals(100, processor.stack[1]);
     }
 }
