@@ -34,7 +34,7 @@ public class TestCompiler {
         Compiler compiler = new Compiler(input);
         compiler.token();
         compiler.program();
-        assertEquals(6, compiler.codes.size());
+        assertEquals(7, compiler.codes.size());
         assertEquals(Map.of("a", 0, "b", 1, "c", 2), compiler.globals);
     }
 }

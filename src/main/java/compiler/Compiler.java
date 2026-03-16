@@ -223,6 +223,67 @@ public class Compiler {
                 break;
     }
 
+    void assignStatement() {
+        String name = eatenString;
+        must(Token.ASSIGN);
+        expression();
+        if (locals != null && locals.containsKey(name))
+            codes.add(Instruction.storeLocal(locals.get(name)));
+        else if (globals.containsKey(name))
+            codes.add(Instruction.storeGlobal(globals.get(name)));
+        else
+            throw error("Variable '%s' is not defined", name);
+    }
+
+    void ifStatement() {
+        expression();
+        must(Token.THEN);
+        int thenPos = codes.size();
+        codes.add(Instruction.branchFalse(Integer.MIN_VALUE));
+        statements();
+        if (eat(Token.ELSE)) {
+            int elsePos = codes.size();
+            codes.add(Instruction.branch(Integer.MIN_VALUE));
+            codes.set(thenPos, Instruction.branchFalse(codes.size()));
+            statements();
+            codes.set(elsePos, Instruction.branch(codes.size()));
+        } else
+            codes.set(thenPos, Instruction.branchFalse(codes.size()));
+        must(Token.END);
+    }
+
+    void whileStatement() {
+        int start = codes.size();
+        expression();
+        must(Token.DO);
+        int doPos = codes.size();
+        codes.add(Instruction.branchFalse(Integer.MIN_VALUE));
+        statements();
+        codes.add(Instruction.branch(start));
+        must(Token.END);
+        codes.set(doPos, Instruction.branchFalse(codes.size()));
+    }
+
+    void displayStatement() {
+        expression();
+        codes.add(Instruction.DISPLAY);
+    }
+
+    void statements() {
+        while (true) {
+            if (eat(Token.ID))
+                assignStatement();
+            else if (eat(Token.IF))
+                ifStatement();
+            else if (eat(Token.WHILE))
+                whileStatement();
+            else if (eat(Token.DISPLAY))
+                displayStatement();
+            else
+                break;
+        }
+    }
+
     void var() {
         must(Token.ID);
         String name = eatenString;
@@ -240,10 +301,74 @@ public class Compiler {
         must(Token.SEMI_COLON);
     }
 
+    void var(List<String> localNames) {
+        must(Token.ID);
+        String name = eatenString;
+        if (eat(Token.ASSIGN))
+            expression();
+        else
+            codes.add(Instruction.loadConst(0));
+        localNames.add(name);
+    }
+
+    void vars(List<String> localNames) {
+        var(localNames);
+        while (eat(Token.COMMA))
+            var(localNames);
+        must(Token.SEMI_COLON);
+    }
+
+    void arguments(List<String> argNames) {
+        must(Token.LP);
+        if (!eat(Token.RP)) {
+            eat(Token.ID);
+            argNames.add(eatenString);
+            while (eat(Token.COMMA)) {
+                eat(Token.ID);
+                argNames.add(eatenString);
+            }
+        }
+    }
+
+    void func() {
+        must(Token.ID);
+        String name = eatenString;
+        // 関数の開始アドレスを登録する。（再帰呼出し可）
+        functions.put(name, codes.size());
+        List<String> argNames = new ArrayList<>();
+        arguments(argNames);
+        int argSize = argNames.size();
+        List<String> localNames = new ArrayList<>();
+        if (eat(Token.VAR))
+            vars(localNames);
+        locals = new LinkedHashMap<>();
+        // 引数のアドレスを登録
+        for (int i = 0; i < argSize; ++i)
+            locals.put(argNames.get(i), -argSize - 3 + i);
+        // ローカル変数のアドレスを登録
+        for (int i = 0, size = localNames.size(); i < size; ++i)
+            locals.put(localNames.get(i), i);
+        // 関数名と同名の戻り値変数を登録
+        locals.put(name, -1);
+        statements();
+        locals = null;
+        must(Token.END);
+        // 関数からリターンするコードを追加する
+        codes.add(Instruction.retFunc(argSize));
+    }
+
     void program() {
+        // グローバル変数と関数定義をBRANCHでスキップする。
+        int start = codes.size();
+        codes.add(Instruction.branch(Integer.MIN_VALUE));
         must(Token.PROGRAM);
         if (eat(Token.VAR))
             vars();
+        while (eat(Token.FUNC))
+            func();
+        // コード本体の開始
+        codes.set(start, Instruction.branch(codes.size()));
+        statements();
         must(Token.END);
         codes.add(Instruction.HALT);
     }

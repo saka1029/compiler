@@ -6,6 +6,7 @@ public interface Instruction {
 
     public static final Instruction HALT = p -> p.halt = true;
     public static final Instruction DUMP = p -> System.out.println(p);
+    public static final Instruction DISPLAY = p -> System.out.println(p.pop());
     public static final Instruction LOAD_RETURN = p -> p.push(p.stack[p.bp - 1]);
     public static final Instruction STORE_RETURN = p -> p.stack[p.bp - 1] = p.pop();
     public static final Instruction NEGATIVE =  p -> p.push(-p.pop());
