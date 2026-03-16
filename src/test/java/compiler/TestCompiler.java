@@ -2,6 +2,8 @@ package compiler;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.Map;
+
 import org.junit.Test;
 
 import compiler.Compiler.Token;
@@ -26,15 +28,13 @@ public class TestCompiler {
     public void testProgram() {
         String input = """
             program
-            var a, b = 3, c = 4;
+            var a, b = 3 + 2, c = 4;
             end
         """;
-        Processor processor = Compiler.parse(input);
-        assertEquals(4, processor.codes.size());
-        processor.run();
-        assertEquals(3, processor.sp);
-        assertEquals(4, processor.pop());
-        assertEquals(3, processor.pop());
-        assertEquals(0, processor.pop());
+        Compiler compiler = new Compiler(input);
+        compiler.token();
+        compiler.program();
+        assertEquals(6, compiler.codes.size());
+        assertEquals(Map.of("a", 0, "b", 1, "c", 2), compiler.globals);
     }
 }

@@ -158,10 +158,58 @@ public class Compiler {
         token();
     }
 
+    void factor() {
+        if (eat(Token.LP)) {
+            expression();
+            must(Token.RP);
+        } else if (eat(Token.ID)) {
+            String name = eatenString;
+            if (eat(Token.LP)) {
+                if (!eat(Token.RP)) {
+                    expression();
+                    while (eat(Token.COMMA))
+                        expression();
+                }
+            } else {
+                ;
+            }
+        } else if (eat(Token.INT)) {
+            int value = Integer.parseInt(eatenString);
+            codes.add(Instruction.loadConst(value));
+        }
+    }
+
+    void term() {
+        factor();
+        while (true)
+            if (eat(Token.MULTIPLY)) {
+                factor();
+                codes.add(Instruction.MULTIPLY);
+            } else if (eat(Token.DIVIDE)) {
+                factor();
+                codes.add(Instruction.DIVIDE);
+            } else
+                break;
+    }
+
     void expression() {
-        must(Token.INT);
-        int value = Integer.parseInt(eatenString);
-        codes.add(Instruction.loadConst(value));
+        int sign = 1;
+        if (eat(Token.ADD))
+            sign = 1;
+        else if(eat(Token.SUBTRACT))
+            sign = -1;
+        term();
+        if (sign < 0)
+            codes.add(Instruction.NEGATIVE);
+        while (true)
+            if (eat(Token.ADD)) {
+                term();
+                codes.add(Instruction.ADD);
+            } else if (eat(Token.SUBTRACT)) {
+                term();
+                codes.add(Instruction.SUBTRACT);
+            } else
+                break;
     }
 
     void var() {
