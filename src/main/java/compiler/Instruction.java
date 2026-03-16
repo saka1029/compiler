@@ -1,5 +1,8 @@
 package compiler;
 
+import java.util.List;
+import java.util.stream.IntStream;
+
 public interface Instruction {
 
     void execute(Processor processor);
@@ -113,4 +116,20 @@ public interface Instruction {
         }
     }
     public static Instruction retProc(int argSize) { return new RetProc(argSize); }
+
+    static String get(List<Instruction> x, int i) {
+        return i < x.size() ? x.get(i).toString() : " . ";
+    }
+
+    public static boolean compare(List<Instruction> e, List<Instruction> c) {
+        int es = e.size(), cs = c.size();
+        System.out.println("size: " + es + (es == cs ? " == " : " != ") + cs);
+        int max = Math.max(e.size(), c.size());
+        for (int i = 0; i < max; ++i)
+            System.out.println(i + " : "
+                + get(e, i)
+                + (i < es && i < cs && e.get(i).equals(c.get(i)) ? " == " : " != ")
+                + get(c, i));
+        return es == cs && IntStream.range(0, es).allMatch(k -> e.get(k).equals(c.get(k)));
+    }
 }
