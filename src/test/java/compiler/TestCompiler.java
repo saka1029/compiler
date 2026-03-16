@@ -21,4 +21,20 @@ public class TestCompiler {
         assertEquals(Token.INT, compiler.token()); assertEquals("511", compiler.tokenString);
         assertEquals(Token.EOF, compiler.token());
     }
+
+    @Test
+    public void testProgram() {
+        String input = """
+            program
+            var a, b = 3, c = 4;
+            end
+        """;
+        Processor processor = Compiler.parse(input);
+        assertEquals(4, processor.codes.size());
+        processor.run();
+        assertEquals(3, processor.sp);
+        assertEquals(4, processor.pop());
+        assertEquals(3, processor.pop());
+        assertEquals(0, processor.pop());
+    }
 }

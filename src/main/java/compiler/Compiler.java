@@ -4,6 +4,7 @@ import java.util.Map;
 import static java.util.Map.entry;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 public class Compiler {
@@ -45,7 +46,10 @@ public class Compiler {
     final int[] input;
     int index, ch;
     Token token; String tokenString;
+    Token eaten; String eatenString;
+
     List<Instruction> codes = new ArrayList<>();
+    Map<String, Integer> globals = new LinkedHashMap<>();
 
     Compiler(String input) {
         this.input = input.codePoints().toArray();
@@ -135,8 +139,54 @@ public class Compiler {
         }
     }
 
-    void program() {
+    boolean eat(Token... expects) {
+        for (Token expect : expects)
+            if (token == expect) {
+                eaten = token;
+                eatenString = tokenString;
+                token();
+                return true;
+            }
+        return false;
+    }
 
+    void must(Token expect) {
+        if (token != expect)
+            throw error("%s expected", expect);
+        eaten = token;
+        eatenString = tokenString;
+        token();
+    }
+
+    void expression() {
+        must(Token.INT);
+        int value = Integer.parseInt(eatenString);
+        codes.add(Instruction.loadConst(value));
+    }
+
+    void var() {
+        must(Token.ID);
+        String name = eatenString;
+        if (eat(Token.ASSIGN))
+            expression();
+        else
+            codes.add(Instruction.loadConst(0));
+        globals.put(name, globals.size());
+    }
+
+    void vars() {
+        var();
+        while (eat(Token.COMMA))
+            var();
+        must(Token.SEMI_COLON);
+    }
+
+    void program() {
+        must(Token.PROGRAM);
+        if (eat(Token.VAR))
+            vars();
+        must(Token.END);
+        codes.add(Instruction.HALT);
     }
 
     public static Processor parse(String input) {
