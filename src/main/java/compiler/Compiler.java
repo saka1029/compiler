@@ -3,6 +3,9 @@ package compiler;
 import java.util.Map;
 import static java.util.Map.entry;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Compiler {
 
     public enum Token {
@@ -13,7 +16,7 @@ public class Compiler {
         PROGRAM("program"), FUNC("func"),
         VAR("var"), END("end"),
         IF("if"), THEN("then"), ELSE("else"),
-        WHILE("while"), DO("do"), DISPLAY("display")
+        WHILE("while"), DO("do"), DISPLAY("display"),
         ID("ID"), INT("INT");
 
         final String n;
@@ -39,12 +42,13 @@ public class Compiler {
         return new RuntimeException(message.formatted(args));
     }
 
-    final char[] input;
+    final int[] input;
     int index, ch;
     Token token; String tokenString;
+    List<Instruction> codes = new ArrayList<>();
 
     Compiler(String input) {
-        this.input = input.toCharArray();
+        this.input = input.codePoints().toArray();
         this.index = 0;
         ch();
     }
@@ -129,6 +133,17 @@ public class Compiler {
                 else
                     throw error("Unknown char '%c'", (char)ch);
         }
+    }
+
+    void program() {
+
+    }
+
+    public static Processor parse(String input) {
+        Compiler compiler = new Compiler(input);
+        compiler.token();
+        compiler.program();
+        return new Processor(compiler.codes);
     }
 
 }
