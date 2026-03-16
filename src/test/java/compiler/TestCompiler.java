@@ -1,9 +1,11 @@
 package compiler;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.IntStream;
 
 import org.junit.Test;
 
@@ -54,13 +56,16 @@ public class TestCompiler {
         return i < x.size() ? x.get(i).toString() : " . ";
     }
 
-    static void print(List<Instruction> e, List<Instruction> c) {
-        System.out.println("size: " + e.size() + " : " + c.size());
+    static boolean compare(List<Instruction> e, List<Instruction> c) {
+        int es = e.size(), cs = c.size();
+        System.out.println("size: " + es + (es == cs ? " == " : " != ") + cs);
         int max = Math.max(e.size(), c.size());
         for (int i = 0; i < max; ++i)
             System.out.println(i + " : "
-                + (i < e.size() && i < c.size() ? e.get(i).equals(c.get(i)) : " ???? ")
-                + " : " + get(e, i) + " : " + get(c, i));
+                + get(e, i)
+                + (i < es && i < cs && e.get(i).equals(c.get(i)) ? " == " : " != ")
+                + get(c, i));
+        return es == cs && IntStream.range(0, es).allMatch(k -> e.get(k).equals(c.get(k)));
     }
     @Test
     public void testIfStatement() {
@@ -86,7 +91,7 @@ public class TestCompiler {
             Instruction.DISPLAY,
             Instruction.HALT
         );
-        print(expected, processor.codes);
+        assertTrue(compare(expected, processor.codes));
         assertEquals(expected.size(), processor.codes.size());
         processor.run();
     }
