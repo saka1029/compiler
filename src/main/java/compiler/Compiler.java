@@ -49,7 +49,9 @@ public class Compiler {
     Token eaten; String eatenString;
 
     List<Instruction> codes = new ArrayList<>();
+    Map<String, Integer> locals = null;
     Map<String, Integer> globals = new LinkedHashMap<>();
+    Map<String, Integer> functions = new LinkedHashMap<>();
 
     Compiler(String input) {
         this.input = input.codePoints().toArray();
@@ -165,13 +167,21 @@ public class Compiler {
         } else if (eat(Token.ID)) {
             String name = eatenString;
             if (eat(Token.LP)) {
+                if (!functions.containsKey(name))
+                    throw error("Function '%s' is not defined", name);
                 if (!eat(Token.RP)) {
                     expression();
                     while (eat(Token.COMMA))
                         expression();
                 }
+                codes.add(Instruction.call(functions.get(name)));
             } else {
-                ;
+                if (locals != null && locals.containsKey(name))
+                    codes.add(Instruction.loadLocal(locals.get(name)));
+                else if (globals.containsKey(name))
+                    codes.add(Instruction.loadGlobal(globals.get(name)));
+                else
+                    throw error("Variable '%s' is not defined", name);
             }
         } else if (eat(Token.INT)) {
             int value = Integer.parseInt(eatenString);
