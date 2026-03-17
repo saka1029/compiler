@@ -41,6 +41,19 @@ public class TestCompiler {
     }
 
     @Test
+    public void testMod() {
+        String input = """
+            program
+                var a = 11 % 3, b = a + 9;
+            end
+        """;
+        Processor processor = Compiler.parse(input);
+        processor.run();
+        assertEquals(2, processor.stack[0]);
+        assertEquals(11, processor.stack[1]);
+    }
+
+    @Test
     public void testDisplayStatement() {
         String input = """
             program

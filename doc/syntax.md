@@ -12,7 +12,7 @@ statement  = ID '=' expression ';'
            | 'display' expression ';'
 args       = '(' [ ID { ',' ID } ] ')'
 expression = [ '-' | '+' ] term { ( '-' | '+' ) term }
-term       = factor { ( '*' | '/' ) factor }
+term       = factor { ( '*' | '/' | '%' ) factor }
 factor     = '(' expression ')'
            | ID
            | ID '(' [expression { ',' expression }] ')'

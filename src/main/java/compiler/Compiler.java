@@ -11,7 +11,7 @@ public class Compiler {
 
     public enum Token {
         LP("("), RP(")"), COMMA(","), SEMI_COLON(";"), EOF("EOF"),
-        ADD("+"), SUBTRACT("-"), MULTIPLY("*"), DIVIDE("/"),
+        ADD("+"), SUBTRACT("-"), MULTIPLY("*"), DIVIDE("/"), MOD("%"),
         ASSIGN("="), EQ("=="), NE("!="), LT("<"), LE("<="), GT(">"), GE(">="),
         NOT("!"), AND("&"), OR("|"), CAND("&&"), COR("||"),
         PROGRAM("program"), FUNC("func"),
@@ -125,6 +125,7 @@ public class Compiler {
             case '-': return token(Token.SUBTRACT);
             case '*': return token(Token.MULTIPLY);
             case '/': return token(Token.DIVIDE);
+            case '%': return token(Token.MOD);
             case '=': return token(Token.ASSIGN, '=', Token.EQ);
             case '!': return token(Token.NOT, '=', Token.NE);
             case '<': return token(Token.LT, '=', Token.LE);
@@ -200,6 +201,9 @@ public class Compiler {
             } else if (eat(Token.DIVIDE)) {
                 factor();
                 codes.add(Instruction.DIVIDE);
+            } else if (eat(Token.MOD)) {
+                factor();
+                codes.add(Instruction.MOD);
             } else
                 break;
     }

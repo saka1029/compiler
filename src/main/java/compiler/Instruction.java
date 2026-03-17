@@ -17,6 +17,7 @@ public interface Instruction {
     public static final Instruction SUBTRACT = p -> p.stack[p.sp - 2] -= p.stack[--p.sp];
     public static final Instruction MULTIPLY =  p -> p.stack[p.sp - 2] *= p.stack[--p.sp];
     public static final Instruction DIVIDE = p -> p.stack[p.sp - 2] /= p.stack[--p.sp];
+    public static final Instruction MOD = p -> p.stack[p.sp - 2] %= p.stack[--p.sp];
     public static final Instruction EQ = p -> p.push(p.stack[--p.sp] == p.stack[--p.sp] ? 1:0);
     public static final Instruction NE = p -> p.push(p.stack[--p.sp] != p.stack[--p.sp] ? 1:0);
     public static final Instruction LT = p -> p.push(p.stack[--p.sp] > p.stack[--p.sp] ? 1:0);
