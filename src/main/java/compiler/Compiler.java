@@ -79,8 +79,15 @@ public class Compiler {
     }
 
     void spaces() {
-        while (Character.isWhitespace(ch))
-            ch();
+        while (true) {
+            while (Character.isWhitespace(ch))
+                ch();
+            if (ch == '#') {
+                while (ch != -1 && ch != '\n')
+                    ch();
+            } else
+                break;
+        }
     }
 
     Token token(Token t) {

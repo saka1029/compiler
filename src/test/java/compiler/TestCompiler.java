@@ -214,13 +214,14 @@ public class TestCompiler {
 
     @Test
     public void testSum() {
-        // 戻り値用の変数sumはCALL実行時に0に初期化される。
         String input = """
             program
                 var n = 100, result;
                 func sum(n)
                     var i = 1;
                     while i <= n do
+                        # 戻り値用変数sumは関数が
+                        # 呼び出される都度０に初期化される。
                         sum = sum + i;
                         i = i + 1;
                     end
@@ -295,7 +296,8 @@ public class TestCompiler {
     public void testLocalHidesGlobal() {
         String input = """
             program
-                var n = r, r = 3;
+                var n = r, # cannot refer variable 'r'
+                    r = 3;
                 r = 123;
             end
         """;
