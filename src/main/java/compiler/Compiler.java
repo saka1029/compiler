@@ -83,7 +83,7 @@ public class Compiler {
             while (Character.isWhitespace(ch))
                 ch();
             if (ch == '#') {
-                while (ch != -1 && ch != '\n')
+                while (ch != -1 && ch != '\r' && ch != '\n')
                     ch();
             } else
                 break;
