@@ -7,31 +7,36 @@ public interface Instruction {
 
     void execute(Processor processor);
 
-    public static final Instruction HALT = p -> p.halt = true;
-    public static final Instruction DUMP = p -> System.out.println(p);
-    public static final Instruction DISPLAY = p -> System.out.println(p.pop());
-    public static final Instruction LOAD_RETURN = p -> p.push(p.stack[p.bp - 1]);
-    public static final Instruction STORE_RETURN = p -> p.stack[p.bp - 1] = p.pop();
-    public static final Instruction NEGATIVE =  p -> p.push(-p.pop());
-    public static final Instruction ADD =  p -> p.stack[p.sp - 2] += p.stack[--p.sp];
-    public static final Instruction SUBTRACT = p -> p.stack[p.sp - 2] -= p.stack[--p.sp];
-    public static final Instruction MULTIPLY =  p -> p.stack[p.sp - 2] *= p.stack[--p.sp];
-    public static final Instruction DIVIDE = p -> p.stack[p.sp - 2] /= p.stack[--p.sp];
-    public static final Instruction MOD = p -> p.stack[p.sp - 2] %= p.stack[--p.sp];
-    public static final Instruction EQ = p -> p.push(p.stack[--p.sp] == p.stack[--p.sp] ? 1:0);
-    public static final Instruction NE = p -> p.push(p.stack[--p.sp] != p.stack[--p.sp] ? 1:0);
-    public static final Instruction LT = p -> p.push(p.stack[--p.sp] > p.stack[--p.sp] ? 1:0);
-    public static final Instruction LE = p -> p.push(p.stack[--p.sp] >= p.stack[--p.sp] ? 1:0);
-    public static final Instruction GT = p -> p.push(p.stack[--p.sp] < p.stack[--p.sp] ? 1:0);
-    public static final Instruction GE = p -> p.push(p.stack[--p.sp] <= p.stack[--p.sp] ? 1:0);
-    public static abstract class InstAbs implements Instruction {
+    public static abstract class IName implements Instruction {
+        final String n;
+        public IName(String n) { this.n = n; }
+        @Override public String toString() { return n; }
+    }
+
+    public static final Instruction HALT = new IName("HALT") { @Override public void execute(Processor p) { p.halt = true; } };
+    public static final Instruction DUMP = new IName("DUMP") { @Override public void execute(Processor p) { System.out.println(p); }};
+    public static final Instruction DISPLAY = new IName("DISPLAY") { @Override public void execute(Processor p) { System.out.println(p.pop()); }};
+    public static final Instruction NEGATIVE =  new IName("NEGATIVE") { @Override public void execute(Processor p) { p.push(-p.pop()); }};
+    public static final Instruction ADD =  new IName("ADD") { @Override public void execute(Processor p) { p.stack[p.sp - 2] += p.stack[--p.sp]; }};
+    public static final Instruction SUBTRACT = new IName("SUBTRACT") { @Override public void execute(Processor p) { p.stack[p.sp - 2] -= p.stack[--p.sp]; }};
+    public static final Instruction MULTIPLY =  new IName("MULTIPLY") { @Override public void execute(Processor p) { p.stack[p.sp - 2] *= p.stack[--p.sp]; }};
+    public static final Instruction DIVIDE = new IName("DIVIDE") { @Override public void execute(Processor p) { p.stack[p.sp - 2] /= p.stack[--p.sp]; }};
+    public static final Instruction MOD = new IName("MOD") { @Override public void execute(Processor p) { p.stack[p.sp - 2] %= p.stack[--p.sp]; }};
+    public static final Instruction EQ = new IName("EQ") { @Override public void execute(Processor p) { p.push(p.stack[--p.sp] == p.stack[--p.sp] ? 1:0); }};
+    public static final Instruction NE = new IName("NE") { @Override public void execute(Processor p) { p.push(p.stack[--p.sp] != p.stack[--p.sp] ? 1:0); }};
+    public static final Instruction LT = new IName("LT") { @Override public void execute(Processor p) { p.push(p.stack[--p.sp] > p.stack[--p.sp] ? 1:0); }};
+    public static final Instruction LE = new IName("LE") { @Override public void execute(Processor p) { p.push(p.stack[--p.sp] >= p.stack[--p.sp] ? 1:0); }};
+    public static final Instruction GT = new IName("GT") { @Override public void execute(Processor p) { p.push(p.stack[--p.sp] < p.stack[--p.sp] ? 1:0); }};
+    public static final Instruction GE = new IName("GE") { @Override public void execute(Processor p) { p.push(p.stack[--p.sp] <= p.stack[--p.sp] ? 1:0); }};
+
+    public static abstract class IInt implements Instruction {
         public final int n;
-        public InstAbs(int n) { this.n = n; }
+        public IInt(int n) { this.n = n; }
         @Override
         public boolean equals(Object obj) {
             return obj != null
                 && obj.getClass() == getClass()
-                && obj instanceof InstAbs ia
+                && obj instanceof IInt ia
                 && ia.n == n;
         }
         @Override
@@ -39,50 +44,50 @@ public interface Instruction {
             return getClass().getSimpleName() + " " + n;
         }
     }
-    static class LoadConst extends InstAbs {
+    static class LoadConst extends IInt {
         LoadConst(int n) { super(n); }
         @Override public void execute(Processor p) { p.push(n); }
     }
     public static Instruction loadConst(int constant) { return new LoadConst(constant); }
 
-    static class LoadGlobal extends InstAbs {
+    static class LoadGlobal extends IInt {
         LoadGlobal(int n) { super(n); }
         @Override public void execute(Processor p) { p.push(p.stack[n]); }
     }
     public static Instruction loadGlobal(int address) { return new LoadGlobal(address); }
 
-    static class StoreGlobal extends InstAbs {
+    static class StoreGlobal extends IInt {
         StoreGlobal(int n) { super(n); }
         @Override public void execute(Processor p) {
             p.stack[n] = p.pop(); }
     }
     public static Instruction storeGlobal(int address) { return new StoreGlobal(address); }
 
-    static class LoadLocal extends InstAbs {
+    static class LoadLocal extends IInt {
         LoadLocal(int n) { super(n); }
         @Override public void execute(Processor p) { p.push(p.stack[p.bp + n]); }
     }
     public static Instruction loadLocal(int offset) { return new LoadLocal(offset); }
 
-    static class StoreLocal extends InstAbs {
+    static class StoreLocal extends IInt {
         StoreLocal(int n) { super(n); }
         @Override public void execute(Processor p) { p.stack[p.bp + n] = p.pop(); }
     }
     public static Instruction storeLocal(int offset) { return new StoreLocal(offset); }
 
-    static class Branch extends InstAbs {
+    static class Branch extends IInt {
         Branch(int n) { super(n); }
         @Override public void execute(Processor p) { p.pc = n; }
     }
     public static Instruction branch(int address) { return new Branch(address); }
 
-    static class BranchFalse extends InstAbs {
+    static class BranchFalse extends IInt {
         BranchFalse(int n) { super(n); }
         @Override public void execute(Processor p) { if (p.pop() == 0) p.pc = n; }
     }
     public static Instruction branchFalse(int address) { return new BranchFalse(address); }
 
-    static class Call extends InstAbs {
+    static class Call extends IInt {
         Call(int n) { super(n); }
         @Override public void execute(Processor p) {
             p.push(p.pc);
@@ -94,7 +99,7 @@ public interface Instruction {
     }
     public static Instruction call(int address) { return new Call(address); }
 
-    static class RetFunc extends InstAbs {
+    static class RetFunc extends IInt {
         RetFunc(int n) { super(n); }
         @Override public void execute(Processor p) {
             p.sp = p.bp;
@@ -107,7 +112,7 @@ public interface Instruction {
     }
     public static Instruction retFunc(int argSize) { return new RetFunc(argSize); }
 
-    static class RetProc extends InstAbs {
+    static class RetProc extends IInt {
         RetProc(int n) { super(n); }
         @Override public void execute(Processor p) {
             p.sp = p.bp;

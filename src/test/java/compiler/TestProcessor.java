@@ -47,7 +47,7 @@ public class TestProcessor {
             Instruction.ADD,
             Instruction.loadLocal(1),
             Instruction.ADD,
-            Instruction.STORE_RETURN,              // 戻り値をセット
+            Instruction.storeLocal(-1),              // 戻り値をセット
             Instruction.retFunc(argSize)
         );
         Processor processor = Processor.of(codes);
@@ -123,7 +123,7 @@ public class TestProcessor {
             Instruction.call(22),                       //       fact
             Instruction.loadLocal(-argSize - 3 + 0),    //       n
             Instruction.MULTIPLY,                       //       *
-    /*34*/  Instruction.STORE_RETURN,                   // 34:   STORE_RETURN
+    /*34*/  Instruction.storeLocal(-1),                  // 34:  store fact
             Instruction.retFunc(argSize)                //       RET_FUNC
         );
         Processor processor = Processor.of(codes);
