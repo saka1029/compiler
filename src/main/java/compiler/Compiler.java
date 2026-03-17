@@ -350,15 +350,15 @@ public class Compiler {
 
     void arguments(List<String> argNames) {
         must(Token.LP);
-        if (eat(Token.RP))
-            return;
-        eat(Token.ID);
-        argNames.add(eatenString);
-        while (eat(Token.COMMA)) {
+        if (!eat(Token.RP)) {
             eat(Token.ID);
             argNames.add(eatenString);
+            while (eat(Token.COMMA)) {
+                eat(Token.ID);
+                argNames.add(eatenString);
+            }
+            must(Token.RP);
         }
-        must(Token.RP);
     }
 
     void func() {
