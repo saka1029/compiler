@@ -2,6 +2,7 @@ package compiler;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.List;
 import java.util.Map;
@@ -259,5 +260,51 @@ public class TestCompiler {
         processor.sp = processor.bp = processor.pc = 0;
         processor.run();
         assertEquals(5050, processor.stack[1]);
+    }
+
+    @Test
+    public void testLocalDoesNotHideGlobal() {
+        String input = """
+            program
+                var n = 100, result;
+                func f(a)
+                    f = n;
+                end
+                result = f(0);
+            end
+        """;
+        Processor processor = Compiler.parse(input);
+        List<Instruction> expected = List.of(
+            Instruction.loadConst(100),     //          load #100
+            Instruction.loadConst(0),       //          load #0
+            Instruction.branch(6),          //          branch main
+            Instruction.loadGlobal(0),      //          load n
+            Instruction.storeLocal(-1),     //          store f
+            Instruction.retFunc(1),         //          retFunc 1
+            Instruction.loadConst(0),       // main     load #0
+            Instruction.call(3),            //          call f
+            Instruction.storeGlobal(1),     //          store result
+            Instruction.HALT                //          HALT
+        );
+        assertTrue(Instruction.equals(expected, processor.codes));
+        processor.run();
+        assertEquals(100, processor.stack[1]);
+    }
+
+    @Test
+    public void testLocalHidesGlobal() {
+        String input = """
+            program
+                var n = r, r = 3;
+                r = 123;
+            end
+        """;
+        try {
+            Processor processor = Compiler.parse(input);
+            fail();
+            processor.run();
+        } catch (RuntimeException e) {
+            assertEquals("Variable 'r' is not defined", e.getMessage());
+        }
     }
 }
