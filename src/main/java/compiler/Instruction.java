@@ -87,7 +87,7 @@ public interface Instruction {
         @Override public void execute(Processor p) {
             p.push(p.pc);
             p.push(p.bp);
-            p.push(0);
+            p.push(0);      // 関数戻り値格納変数の初期化
             p.pc = n;
             p.bp = p.sp;
         }

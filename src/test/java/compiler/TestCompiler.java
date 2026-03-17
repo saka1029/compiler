@@ -63,7 +63,7 @@ public class TestCompiler {
         Processor processor = Compiler.parse(input);
         processor.run();
     }
-        
+
     @Test
     public void testIfStatement() {
         String input = """
@@ -96,7 +96,7 @@ public class TestCompiler {
         processor.run();
         assertEquals(101, processor.stack[1]);
     }
-        
+
     @Test
     public void testIfStatement2() {
         String input = """
@@ -226,7 +226,32 @@ public class TestCompiler {
                 result = sum(n);
             end
         """;
+        List<Instruction> expected = List.of(
+            Instruction.loadConst(100),     //          load #100
+            Instruction.loadConst(0),       //          load #0
+            Instruction.branch(18),         //          branch main
+            Instruction.loadConst(1),       //          load #1
+            Instruction.loadLocal(0),       // wstart:  load i
+            Instruction.loadLocal(-4),      //          load n
+            Instruction.LE,                 //          le
+            Instruction.branchFalse(17),    //          brancFalse wend
+            Instruction.loadLocal(-1),      //          load sum
+            Instruction.loadLocal(0),       //          load i
+            Instruction.ADD,                //          add
+            Instruction.storeLocal(-1),     //          store sum
+            Instruction.loadLocal(0),       //          load i
+            Instruction.loadConst(1),       //          load #1
+            Instruction.ADD,                //          add
+            Instruction.storeLocal(0),      //          store i
+            Instruction.branch(4),          //          branch wstart
+            Instruction.retFunc(1),         // wend:    retFunc 1
+            Instruction.loadGlobal(0),      // main:    load n
+            Instruction.call(3),            //          call sum
+            Instruction.storeGlobal(1),     //          store result
+            Instruction.HALT
+        );
         Processor processor = Compiler.parse(input);
+        assertTrue(Instruction.equals(expected, processor.codes));
         processor.run();
         assertEquals(5050, processor.stack[1]);
         processor.sp = processor.bp = processor.pc = 0;
