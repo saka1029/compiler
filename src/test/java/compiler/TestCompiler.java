@@ -57,7 +57,7 @@ public class TestCompiler {
     public void testDisplayStatement() {
         String input = """
             program
-            display 3 + 2;
+                display 3 + 2;
             end
         """;
         Processor processor = Compiler.parse(input);
@@ -68,9 +68,13 @@ public class TestCompiler {
     public void testIfStatement() {
         String input = """
             program
-            var y = 1;
-            if y then y = 101; else y = 100; end
-            display y;
+                var y = 1;
+                if y then
+                    y = 101;
+                else
+                    y = 100;
+                end
+                display y;
             end
         """;
         Processor processor = Compiler.parse(input);
@@ -97,9 +101,13 @@ public class TestCompiler {
     public void testIfStatement2() {
         String input = """
             program
-            var y = 0;
-            if y then y = 101; else y = 100; end
-            display y;
+                var y = 0;
+                if y then
+                    y = 101;
+                else
+                    y = 100;
+                end
+                display y;
             end
         """;
         Processor processor = Compiler.parse(input);
@@ -126,8 +134,11 @@ public class TestCompiler {
     public void testWhileStatement() {
         String input = """
             program
-            var y = 3, s = 0;
-            while y > 0 do s = s + y; y = y - 1; end
+                var y = 3, s = 0;
+                while y > 0 do
+                    s = s + y;
+                    y = y - 1;
+                end
             end
         """;
         Processor processor = Compiler.parse(input);
