@@ -287,7 +287,7 @@ public class TestCompiler {
             Instruction.storeGlobal(1),     //          store result
             Instruction.HALT                //          HALT
         );
-        assertTrue(Instruction.equals(expected, processor.codes));
+        assertEquals(expected, processor.codes);
         processor.run();
         assertEquals(100, processor.stack[1]);
     }

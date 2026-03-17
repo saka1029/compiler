@@ -22,12 +22,12 @@ public interface Instruction {
     public static final Instruction MULTIPLY =  new IName("MULTIPLY") { @Override public void execute(Processor p) { p.stack[p.sp - 2] *= p.stack[--p.sp]; }};
     public static final Instruction DIVIDE = new IName("DIVIDE") { @Override public void execute(Processor p) { p.stack[p.sp - 2] /= p.stack[--p.sp]; }};
     public static final Instruction MOD = new IName("MOD") { @Override public void execute(Processor p) { p.stack[p.sp - 2] %= p.stack[--p.sp]; }};
-    public static final Instruction EQ = new IName("EQ") { @Override public void execute(Processor p) { p.push(p.stack[--p.sp] == p.stack[--p.sp] ? 1:0); }};
-    public static final Instruction NE = new IName("NE") { @Override public void execute(Processor p) { p.push(p.stack[--p.sp] != p.stack[--p.sp] ? 1:0); }};
-    public static final Instruction LT = new IName("LT") { @Override public void execute(Processor p) { p.push(p.stack[--p.sp] > p.stack[--p.sp] ? 1:0); }};
-    public static final Instruction LE = new IName("LE") { @Override public void execute(Processor p) { p.push(p.stack[--p.sp] >= p.stack[--p.sp] ? 1:0); }};
-    public static final Instruction GT = new IName("GT") { @Override public void execute(Processor p) { p.push(p.stack[--p.sp] < p.stack[--p.sp] ? 1:0); }};
-    public static final Instruction GE = new IName("GE") { @Override public void execute(Processor p) { p.push(p.stack[--p.sp] <= p.stack[--p.sp] ? 1:0); }};
+    public static final Instruction EQ = new IName("EQ") { @Override public void execute(Processor p) { p.push(p.pop() == p.pop() ? 1:0); }};
+    public static final Instruction NE = new IName("NE") { @Override public void execute(Processor p) { p.push(p.pop() != p.pop() ? 1:0); }};
+    public static final Instruction LT = new IName("LT") { @Override public void execute(Processor p) { p.push(p.pop() > p.pop() ? 1:0); }};
+    public static final Instruction LE = new IName("LE") { @Override public void execute(Processor p) { p.push(p.pop() >= p.pop() ? 1:0); }};
+    public static final Instruction GT = new IName("GT") { @Override public void execute(Processor p) { p.push(p.pop() < p.pop() ? 1:0); }};
+    public static final Instruction GE = new IName("GE") { @Override public void execute(Processor p) { p.push(p.pop() <= p.pop() ? 1:0); }};
 
     public static abstract class IInt implements Instruction {
         public final int n;
