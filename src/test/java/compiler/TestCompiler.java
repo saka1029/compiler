@@ -210,4 +210,24 @@ public class TestCompiler {
         processor.run();
         assertEquals(24, processor.stack[1]);   // fact(n) = fact(4) = 24
     }
+
+    @Test
+    public void testSum() {
+        String input = """
+            program
+                var n = 100, result;
+                func sum(n)
+                    var i = 1;
+                    while i <= n do
+                        sum = sum + i;
+                        i = i + 1;
+                    end
+                end
+                result = sum(n);
+            end
+        """;
+        Processor processor = Compiler.parse(input);
+        processor.run();
+        assertEquals(5050, processor.stack[1]);
+    }
 }

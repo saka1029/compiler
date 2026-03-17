@@ -167,6 +167,7 @@ public class Compiler {
             must(Token.RP);
         } else if (eat(Token.ID)) {
             String name = eatenString;
+            // IDの後にカッコが続くのは関数呼び出し
             if (eat(Token.LP)) {
                 if (!functions.containsKey(name))
                     throw error("Function '%s' is not defined", name);
@@ -178,8 +179,10 @@ public class Compiler {
                 }
                 codes.add(Instruction.call(functions.get(name)));
             } else {
+                // ローカル変数検索
                 if (locals != null && locals.containsKey(name))
                     codes.add(Instruction.loadLocal(locals.get(name)));
+                // グローバル変数検索
                 else if (globals.containsKey(name))
                     codes.add(Instruction.loadGlobal(globals.get(name)));
                 else
@@ -364,7 +367,8 @@ public class Compiler {
     void func() {
         must(Token.ID);
         String name = eatenString;
-        // 関数の開始アドレスを登録する。（再帰呼出し可）
+        // 関数の開始アドレスを登録する。
+        // 関数本体の定義に先行して登録するので再帰呼出し可。
         functions.put(name, codes.size());
         List<String> argNames = new ArrayList<>();
         arguments(argNames);
