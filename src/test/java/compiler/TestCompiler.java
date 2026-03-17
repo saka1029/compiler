@@ -253,6 +253,7 @@ public class TestCompiler {
         );
         Processor processor = Compiler.parse(input);
         assertTrue(Instruction.equals(expected, processor.codes));
+        assertEquals(expected, processor.codes);
         processor.run();
         assertEquals(5050, processor.stack[1]);
         processor.sp = processor.bp = processor.pc = 0;
