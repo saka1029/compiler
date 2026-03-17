@@ -106,9 +106,9 @@ public class TestCompiler {
         );
         assertTrue(Instruction.equals(expected, processor.codes));
         processor.run();
-        assertEquals(100, processor.stack[1]);
+        assertEquals(100, processor.stack[0]);
     }
-        
+
     @Test
     public void testWhileStatement() {
         String input = """
@@ -140,5 +140,50 @@ public class TestCompiler {
         assertTrue(Instruction.equals(expected, processor.codes));
         processor.run();
         assertEquals(6, processor.stack[1]);
+    }
+
+    @Test
+    public void testFunction() {
+        String input = """
+            program
+                var n = 4, result;
+                func fact(i)
+                    if i <= 0 then
+                        fact = 1;
+                    else
+                        fact = fact(i - 1) * i;
+                    end
+                end
+                result = fact(n);
+            end
+        """;
+        Processor processor = Compiler.parse(input);
+        List<Instruction> expected = List.of(
+            Instruction.loadConst(4),       //          load #4 (for n)
+            Instruction.loadConst(0),       //          load #0 (for result)
+            Instruction.branch(18),         //          branch main (skip func definitions)
+            Instruction.loadLocal(-4),      //          load i
+            Instruction.loadConst(0),       //          load #0
+            Instruction.LE,                 //          le
+            Instruction.branchFalse(10),    //          branchFalse else
+            Instruction.loadConst(1),       //          load #1
+            Instruction.storeLocal(-1),     //          store fact
+            Instruction.branch(17),         //          branch fi
+            Instruction.loadLocal(-4),      // else:    load i
+            Instruction.loadConst(1),       //          locad #1
+            Instruction.SUBTRACT,           //          subtract
+            Instruction.call(3),            //          call fact
+            Instruction.loadLocal(-4),      //          load i
+            Instruction.MULTIPLY,           //          multiply
+            Instruction.storeLocal(-1),     //          store fact
+            Instruction.retFunc(1),         // fi:      retFunc 1   (1 for argSize)
+            Instruction.loadGlobal(0),      // main:    load n
+            Instruction.call(3),            //          call fact
+            Instruction.storeGlobal(1),     //          store result
+            Instruction.HALT                //          halt
+        );
+        assertTrue(Instruction.equals(expected, processor.codes));
+        processor.run();
+        assertEquals(24, processor.stack[1]);
     }
 }

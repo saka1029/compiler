@@ -154,7 +154,7 @@ public class Compiler {
 
     void must(Token expect) {
         if (token != expect)
-            throw error("%s expected", expect);
+            throw error("'%s' expected, but '%s'", expect, token);
         eaten = token;
         eatenString = tokenString;
         token();
@@ -173,6 +173,7 @@ public class Compiler {
                     expression();
                     while (eat(Token.COMMA))
                         expression();
+                    must(Token.RP);
                 }
                 codes.add(Instruction.call(functions.get(name)));
             } else {
@@ -345,14 +346,15 @@ public class Compiler {
 
     void arguments(List<String> argNames) {
         must(Token.LP);
-        if (!eat(Token.RP)) {
+        if (eat(Token.RP))
+            return;
+        eat(Token.ID);
+        argNames.add(eatenString);
+        while (eat(Token.COMMA)) {
             eat(Token.ID);
             argNames.add(eatenString);
-            while (eat(Token.COMMA)) {
-                eat(Token.ID);
-                argNames.add(eatenString);
-            }
         }
+        must(Token.RP);
     }
 
     void func() {
