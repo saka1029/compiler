@@ -122,10 +122,8 @@ public interface Instruction {
         return i < x.size() ? x.get(i).toString() : " . ";
     }
 
-    public static boolean equals(List<Instruction> e, List<Instruction> c) {
+    public static void print(List<Instruction> e, List<Instruction> c) {
         int es = e.size(), cs = c.size();
-        boolean equals = es == cs && IntStream.range(0, es).allMatch(k -> e.get(k).equals(c.get(k)));
-        if (equals) return true;
         System.out.println("size: " + es + (es == cs ? " == " : " <> ") + cs);
         int max = Math.max(e.size(), c.size());
         for (int i = 0; i < max; ++i)
@@ -133,6 +131,13 @@ public interface Instruction {
                 + get(e, i)
                 + (i < es && i < cs && e.get(i).equals(c.get(i)) ? " == " : " <> ")
                 + get(c, i));
+    }
+
+    public static boolean equals(List<Instruction> e, List<Instruction> c) {
+        int es = e.size(), cs = c.size();
+        boolean equals = es == cs && IntStream.range(0, es).allMatch(k -> e.get(k).equals(c.get(k)));
+        if (equals) return true;
+        print(e, c);
         return false;
     }
 }

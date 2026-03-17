@@ -184,6 +184,6 @@ public class TestCompiler {
         );
         assertTrue(Instruction.equals(expected, processor.codes));
         processor.run();
-        assertEquals(24, processor.stack[1]);
+        assertEquals(24, processor.stack[1]);   // fact(n) = fact(4) = 24
     }
 }
