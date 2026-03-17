@@ -213,6 +213,7 @@ public class TestCompiler {
 
     @Test
     public void testSum() {
+        // 戻り値用の変数sumはCALL実行時に0に初期化される。
         String input = """
             program
                 var n = 100, result;
