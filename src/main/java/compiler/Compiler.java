@@ -17,8 +17,8 @@ public class Compiler {
         PROGRAM("program"), FUNC("func"),
         VAR("var"), END("end"),
         IF("if"), THEN("then"), ELSE("else"),
-        WHILE("while"), DO("do"), INPUT("input"), OUTPUT("output"),
-        ID("ID"), INT("INT");
+        WHILE("while"), DO("do"),
+        ID("ID"), INT("INT"), IO("?");
 
         final String n;
 
@@ -35,8 +35,7 @@ public class Compiler {
             entry("program", Token.PROGRAM), entry("func", Token.FUNC),
             entry("var", Token.VAR), entry("end", Token.END),
             entry("if", Token.IF), entry("then", Token.THEN), entry("else", Token.ELSE),
-            entry("while", Token.WHILE), entry("do", Token.DO),
-            entry("input", Token.INPUT), entry("output", Token.OUTPUT)
+            entry("while", Token.WHILE), entry("do", Token.DO), entry("?", Token.IO)
         );
     }
 
@@ -98,7 +97,7 @@ public class Compiler {
         if (ch() == next)
             return token(second);
         else
-            return token =first;
+            return token = first;
     }
 
     Token word() {
@@ -139,6 +138,7 @@ public class Compiler {
             case '>': return token(Token.GT, '=', Token.GE);
             case '&': return token(Token.AND, '&', Token.CAND);
             case '|': return token(Token.OR, '|', Token.COR);
+            case '?': return token(Token.IO);
             default:
                 if (isIdFirst(ch))
                     return word();
@@ -198,6 +198,8 @@ public class Compiler {
         } else if (eat(Token.INT)) {
             int value = Integer.parseInt(eatenString);
             codes.add(Instruction.loadConst(value));
+        } else if (eat(Token.IO)) {
+            codes.add(Instruction.INPUT);
         } else
             throw error("Unknown token '%s'", token);
     }
@@ -303,26 +305,10 @@ public class Compiler {
         codes.set(doPos, Instruction.branchFalse(codes.size()));
     }
 
-    void inputStatement() {
-        do {
-            must(Token.ID);
-            String name = eatenString;
-            codes.add(Instruction.INPUT);
-            if (locals != null && locals.containsKey(name))
-                codes.add(Instruction.storeLocal(locals.get(name)));
-            else if (globals.containsKey(name))
-                codes.add(Instruction.storeGlobal(globals.get(name)));
-            else
-                throw error("Variable '%s' is not defined", name);
-        } while (eat(Token.COMMA));
-        must(Token.SEMI_COLON);
-    }
-
     void outputStatement() {
-        do {
-            expression();
-            codes.add(Instruction.OUTPUT);
-        } while (eat(Token.COMMA));
+        must(Token.ASSIGN);
+        expression();
+        codes.add(Instruction.OUTPUT);
         must(Token.SEMI_COLON);
     }
 
@@ -334,9 +320,7 @@ public class Compiler {
                 ifStatement();
             else if (eat(Token.WHILE))
                 whileStatement();
-            else if (eat(Token.INPUT))
-                inputStatement();
-            else if (eat(Token.OUTPUT))
+            else if (eat(Token.IO))
                 outputStatement();
             else
                 break;

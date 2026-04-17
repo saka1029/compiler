@@ -58,7 +58,7 @@ public class TestCompiler {
     public void testDisplayStatement() {
         String input = """
             program
-                output 3 + 2;
+                ? = 3 + 2;
             end
         """;
         Processor processor = Compiler.parse(input);
@@ -75,7 +75,7 @@ public class TestCompiler {
                 else
                     y = 100;
                 end
-                output y;
+                ? = y;
             end
         """;
         Processor processor = Compiler.parse(input);
@@ -108,7 +108,7 @@ public class TestCompiler {
                 else
                     y = 100;
                 end
-                output y;
+                ? = y;
             end
         """;
         Processor processor = Compiler.parse(input);
@@ -315,12 +315,12 @@ public class TestCompiler {
         String input = """
             program
                 var sum = 0, i = 0;
-                input i;
+                i = ?;
                 while i > 0 do
                     sum = sum + i;
-                    input i;
+                    i = ?;
                 end
-                output sum;
+                ? = sum;
             end
         """;
         Processor processor = Compiler.parse(input);
@@ -363,7 +363,7 @@ public class TestCompiler {
                     end
                 end
                 while n < 10 do
-                    output fact(n);
+                    ? = fact(n);
                     n = n + 1;
                 end
             end

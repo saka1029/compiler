@@ -7,10 +7,9 @@ var        = ID [ '=' expression ]
 func       = 'func' ID args [ vars ] statements 'end'
 statements = { statement }
 statement  = ID '=' expression ';'
+           | '?' '=' expression ';'
            | 'if' expression 'then' statements [ 'else' statements ] 'end'
            | 'while' expression 'do' statements 'end'
-           | 'input' ID { ',' ID }';'
-           | 'output' expression { ',' expression }';'
 args       = '(' [ ID { ',' ID } ] ')'
 expression = [ '-' | '+' ] term { ( '-' | '+' ) term }
 term       = factor { ( '*' | '/' | '%' ) factor }
@@ -18,6 +17,7 @@ factor     = '(' expression ')'
            | ID
            | ID '(' [expression { ',' expression }] ')'
            | INT
+           | '?'
 ```
 
 # アドレス表の構成
