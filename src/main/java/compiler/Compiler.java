@@ -17,7 +17,7 @@ public class Compiler {
         PROGRAM("program"), FUNC("func"),
         VAR("var"), END("end"),
         IF("if"), THEN("then"), ELSE("else"),
-        WHILE("while"), DO("do"), DISPLAY("display"),
+        WHILE("while"), DO("do"), INPUT("input"), OUTPUT("output"),
         ID("ID"), INT("INT");
 
         final String n;
@@ -35,7 +35,8 @@ public class Compiler {
             entry("program", Token.PROGRAM), entry("func", Token.FUNC),
             entry("var", Token.VAR), entry("end", Token.END),
             entry("if", Token.IF), entry("then", Token.THEN), entry("else", Token.ELSE),
-            entry("while", Token.WHILE), entry("do", Token.DO), entry("display", Token.DISPLAY)
+            entry("while", Token.WHILE), entry("do", Token.DO),
+            entry("input", Token.INPUT), entry("output", Token.OUTPUT)
         );
     }
 
@@ -302,9 +303,26 @@ public class Compiler {
         codes.set(doPos, Instruction.branchFalse(codes.size()));
     }
 
-    void displayStatement() {
-        expression();
-        codes.add(Instruction.DISPLAY);
+    void inputStatement() {
+        do {
+            must(Token.ID);
+            String name = eatenString;
+            codes.add(Instruction.INPUT);
+            if (locals != null && locals.containsKey(name))
+                codes.add(Instruction.storeLocal(locals.get(name)));
+            else if (globals.containsKey(name))
+                codes.add(Instruction.storeGlobal(globals.get(name)));
+            else
+                throw error("Variable '%s' is not defined", name);
+        } while (eat(Token.COMMA));
+        must(Token.SEMI_COLON);
+    }
+
+    void outputStatement() {
+        do {
+            expression();
+            codes.add(Instruction.OUTPUT);
+        } while (eat(Token.COMMA));
         must(Token.SEMI_COLON);
     }
 
@@ -316,8 +334,10 @@ public class Compiler {
                 ifStatement();
             else if (eat(Token.WHILE))
                 whileStatement();
-            else if (eat(Token.DISPLAY))
-                displayStatement();
+            else if (eat(Token.INPUT))
+                inputStatement();
+            else if (eat(Token.OUTPUT))
+                outputStatement();
             else
                 break;
         }

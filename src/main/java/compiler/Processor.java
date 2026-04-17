@@ -1,6 +1,10 @@
 package compiler;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -10,6 +14,8 @@ public class Processor {
     public boolean halt = false;
     public int[] stack = new int[200];
     public final List<Instruction> codes;
+    public Supplier<Integer> input = () -> 0;
+    public Consumer<Integer> output = System.out::println;
 
     Processor(List<Instruction> codes) {
         this.codes = codes;
@@ -30,10 +36,22 @@ public class Processor {
     public void nop() {
     }
 
-    public void run() {
+    public List<Integer> run(int... inputs) {
+        List<Integer> outputs = new ArrayList<>();
+        input = new Supplier<Integer>() {
+            int index = 0;
+            @Override
+            public Integer get() {
+                if (index >= inputs.length)
+                    throw new NoSuchElementException("Too many input");
+                return inputs[index++];
+            }
+        };
+        output = i -> outputs.add(i);
         halt = false;
         while (!halt)
             codes.get(pc++).execute(this);
+        return outputs;
     }
 
     @Override

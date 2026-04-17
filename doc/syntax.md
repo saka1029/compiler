@@ -9,7 +9,8 @@ statements = { statement }
 statement  = ID '=' expression ';'
            | 'if' expression 'then' statements [ 'else' statements ] 'end'
            | 'while' expression 'do' statements 'end'
-           | 'display' expression ';'
+           | 'input' ID { ',' ID }';'
+           | 'output' expression { ',' expression }';'
 args       = '(' [ ID { ',' ID } ] ')'
 expression = [ '-' | '+' ] term { ( '-' | '+' ) term }
 term       = factor { ( '*' | '/' | '%' ) factor }

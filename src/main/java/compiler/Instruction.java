@@ -15,7 +15,8 @@ public interface Instruction {
 
     public static final Instruction HALT = new IName("HALT") { @Override public void execute(Processor p) { p.halt = true; } };
     public static final Instruction DUMP = new IName("DUMP") { @Override public void execute(Processor p) { System.out.println(p); }};
-    public static final Instruction DISPLAY = new IName("DISPLAY") { @Override public void execute(Processor p) { System.out.println(p.pop()); }};
+    public static final Instruction INPUT = new IName("INPUT") { @Override public void execute(Processor p) { p.push(p.input.get()); }};
+    public static final Instruction OUTPUT = new IName("OUTPUT") { @Override public void execute(Processor p) { p.output.accept(p.pop()); }};
     public static final Instruction NEGATIVE =  new IName("NEGATIVE") { @Override public void execute(Processor p) { p.push(-p.pop()); }};
     public static final Instruction ADD =  new IName("ADD") { @Override public void execute(Processor p) { p.stack[p.sp - 2] += p.stack[--p.sp]; }};
     public static final Instruction SUBTRACT = new IName("SUBTRACT") { @Override public void execute(Processor p) { p.stack[p.sp - 2] -= p.stack[--p.sp]; }};

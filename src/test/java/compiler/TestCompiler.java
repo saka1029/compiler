@@ -58,7 +58,7 @@ public class TestCompiler {
     public void testDisplayStatement() {
         String input = """
             program
-                display 3 + 2;
+                output 3 + 2;
             end
         """;
         Processor processor = Compiler.parse(input);
@@ -75,7 +75,7 @@ public class TestCompiler {
                 else
                     y = 100;
                 end
-                display y;
+                output y;
             end
         """;
         Processor processor = Compiler.parse(input);
@@ -90,7 +90,7 @@ public class TestCompiler {
             Instruction.loadConst(100),
             Instruction.storeGlobal(0),
             Instruction.loadGlobal(0),
-            Instruction.DISPLAY,
+            Instruction.OUTPUT,
             Instruction.HALT
         );
         assertTrue(Instruction.equals(expected, processor.codes));
@@ -108,7 +108,7 @@ public class TestCompiler {
                 else
                     y = 100;
                 end
-                display y;
+                output y;
             end
         """;
         Processor processor = Compiler.parse(input);
@@ -123,7 +123,7 @@ public class TestCompiler {
             Instruction.loadConst(100),
             Instruction.storeGlobal(0),
             Instruction.loadGlobal(0),
-            Instruction.DISPLAY,
+            Instruction.OUTPUT,
             Instruction.HALT
         );
         assertTrue(Instruction.equals(expected, processor.codes));
@@ -308,5 +308,101 @@ public class TestCompiler {
         } catch (RuntimeException e) {
             assertEquals("Variable 'r' is not defined", e.getMessage());
         }
+    }
+
+    @Test
+    public void testInput() {
+        String input = """
+            program
+                var sum = 0, i = 0;
+                input i;
+                while i > 0 do
+                    sum = sum + i;
+                    input i;
+                end
+                output sum;
+            end
+        """;
+        Processor processor = Compiler.parse(input);
+        List<Instruction> expected = List.of(
+            Instruction.loadConst(0),
+            Instruction.loadConst(0),
+            Instruction.branch(3),
+            Instruction.INPUT,
+            Instruction.storeGlobal(1),
+            Instruction.loadGlobal(1),
+            Instruction.loadConst(0),
+            Instruction.GT,
+            Instruction.branchFalse(16),
+            Instruction.loadGlobal(0),
+            Instruction.loadGlobal(1),
+            Instruction.ADD,
+            Instruction.storeGlobal(0),
+            Instruction.INPUT,
+            Instruction.storeGlobal(1),
+            Instruction.branch(5),
+            Instruction.loadGlobal(0),
+            Instruction.OUTPUT,
+            Instruction.HALT
+        );
+        assertTrue(Instruction.equals(expected, processor.codes));
+        List<Integer> outputs = processor.run(1, 2, 3, -1);
+        assertEquals(List.of(6), outputs);
+    }
+
+    @Test
+    public void testOutput() {
+        String input = """
+            program
+                var n = 0;
+                func fact(i)
+                    if i <= 0 then
+                        fact = 1;
+                    else
+                        fact = fact(i - 1) * i;
+                    end
+                end
+                while n < 10 do
+                    output fact(n);
+                    n = n + 1;
+                end
+            end
+        """;
+        Processor processor = Compiler.parse(input);
+        List<Instruction> expected = List.of(
+            Instruction.loadConst(0),
+            Instruction.branch(17),
+            Instruction.loadLocal(-4),
+            Instruction.loadConst(0),
+            Instruction.LE,
+            Instruction.branchFalse(9),
+            Instruction.loadConst(1),
+            Instruction.storeLocal(-1),
+            Instruction.branch(16),
+            Instruction.loadLocal(-4),
+            Instruction.loadConst(1),
+            Instruction.SUBTRACT,
+            Instruction.call(2),
+            Instruction.loadLocal(-4),
+            Instruction.MULTIPLY,
+            Instruction.storeLocal(-1),
+            Instruction.retFunc(1),
+            Instruction.loadGlobal(0),
+            Instruction.loadConst(10),
+            Instruction.LT,
+            Instruction.branchFalse(29),
+            Instruction.loadGlobal(0),
+            Instruction.call(2),
+            Instruction.OUTPUT,
+            Instruction.loadGlobal(0),
+            Instruction.loadConst(1),
+            Instruction.ADD,
+            Instruction.storeGlobal(0),
+            Instruction.branch(17),
+            Instruction.HALT
+        );
+        assertTrue(Instruction.equals(expected, processor.codes));
+        List<Integer> outputs = processor.run();
+        assertEquals(List.of(1, 1, 2, 6, 24, 120, 720, 5040, 40320, 362880), outputs);
     }
 }
