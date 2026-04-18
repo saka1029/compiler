@@ -37,21 +37,26 @@ public class Processor {
     }
 
     public List<Integer> run(int... inputs) {
-        List<Integer> outputs = new ArrayList<>();
         input = new Supplier<Integer>() {
             int index = 0;
             @Override
             public Integer get() {
                 if (index >= inputs.length)
-                    throw new NoSuchElementException("Too many input");
+                    throw new NoSuchElementException("Too few input");
                 return inputs[index++];
             }
         };
+        List<Integer> outputs = new ArrayList<>();
         output = i -> outputs.add(i);
+        pc = 0;
         halt = false;
         while (!halt)
             codes.get(pc++).execute(this);
         return outputs;
+    }
+
+    public List<Integer> run(List<Integer> inputs) {
+        return run(inputs.stream().mapToInt(i -> i).toArray());
     }
 
     @Override

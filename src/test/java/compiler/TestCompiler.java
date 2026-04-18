@@ -266,6 +266,7 @@ public class TestCompiler {
         );
         assertTrue(Instruction.equals(expected, processor.codes));
         assertEquals(List.of(1, 1, 2, 6, 24, 120), processor.run(0, 1, 2, 3, 4, 5, -1));
+        assertEquals(List.of(1, 1, 2, 6, 24, 120), processor.run(List.of(0, 1, 2, 3, 4, 5, -1)));
     }
 
     @Test
