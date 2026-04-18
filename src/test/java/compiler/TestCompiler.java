@@ -213,6 +213,62 @@ public class TestCompiler {
     }
 
     @Test
+    public void testInputOutput() {
+        String input = """
+            program
+                var n;
+                func fact(i)
+                    if i <= 0 then
+                        fact = 1;
+                    else
+                        fact = fact(i - 1) * i;
+                    end
+                end
+                n = ?;
+                while n >= 0 do
+                    ? = fact(n);
+                    n = ?;
+                end
+            end
+        """;
+        Processor processor = Compiler.parse(input);
+        List<Instruction> expected = List.of(
+            Instruction.loadConst(0),
+            Instruction.branch(17),
+            Instruction.loadLocal(-4),
+            Instruction.loadConst(0),
+            Instruction.LE,
+            Instruction.branchFalse(9),
+            Instruction.loadConst(1),
+            Instruction.storeLocal(-1),
+            Instruction.branch(16),
+            Instruction.loadLocal(-4),
+            Instruction.loadConst(1),
+            Instruction.SUBTRACT,
+            Instruction.call(2),
+            Instruction.loadLocal(-4),
+            Instruction.MULTIPLY,
+            Instruction.storeLocal(-1),
+            Instruction.retFunc(1),
+            Instruction.INPUT,
+            Instruction.storeGlobal(0),
+            Instruction.loadGlobal(0),
+            Instruction.loadConst(0),
+            Instruction.GE,
+            Instruction.branchFalse(29),
+            Instruction.loadGlobal(0),
+            Instruction.call(2),
+            Instruction.OUTPUT,
+            Instruction.INPUT,
+            Instruction.storeGlobal(0),
+            Instruction.branch(19),
+            Instruction.HALT
+        );
+        assertTrue(Instruction.equals(expected, processor.codes));
+        assertEquals(List.of(1, 1, 2, 6, 24, 120), processor.run(0, 1, 2, 3, 4, 5, -1));
+    }
+
+    @Test
     public void testSum() {
         String input = """
             program
